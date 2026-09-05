@@ -1231,6 +1231,11 @@ body:has(#nav .dot:last-child.active) #nav .dot:nth-child(-n+9){background:rgba(
 #slide-17 main{gap:5vh!important}
 @media(max-height:800px){#slide-17 main{gap:2.5vh!important}}
 
+
+/* Restored full-page field. All changes are isolated to slide 1. */
+#slide-1 .ascii-bg{clip-path:none}
+#slide-1 [data-title-label="cover"]{font-family:var(--mono);font-size:max(18px,min(1.2vw,2.14vh));font-weight:400;letter-spacing:.1em;line-height:1.5}
+
 </style>
 <link rel="icon" href="data:,">
 </head>
@@ -1269,7 +1274,7 @@ body:has(#nav .dot:last-child.active) #nav .dot:nth-child(-n+9){background:rgba(
 <div id="hint">← → 翻页 · B 静态 · ESC 索引</div>
 
 <div id="deck">
-<section class="slide hero dark accent" data-layout="SWISS-COVER-ASCII" data-animate="hero" data-title="千匠智元垂类智能体项目实施SOP" id="slide-1"><div class="canvas-card"><canvas class="ascii-bg" aria-hidden="true"></canvas><header class="chrome-min"><div class="l">QIANJIANG ZHIYUAN / 项目实施 SOP</div><div class="r">01 / 18</div></header><main style="flex:1;display:grid;grid-template-rows:auto 1fr auto;gap:3vh"><div class="t-meta" data-title-label="cover" data-anim="kicker" style="color:var(--accent-on)">QIANJIANG ZHIYUAN / VERTICAL AI AGENT PROJECT IMPLEMENTATION SOP</div><h1 aria-label="千匠智元垂类智能体项目实施SOP" data-anim="title" style="font-weight:200;font-size:min(7.3vw,13vh);line-height:1.12;letter-spacing:-.045em;align-self:center">千匠智元<br>垂类智能体<br>项目实施<em style="font-weight:300">SOP</em></h1><div data-anim="bottom" style="border-top:1px solid rgba(255,255,255,.4);padding-top:2.4vh;display:grid;gap:2vh"><p class="lead" data-anim="lead" style="font-size:max(23px,1.75vw)">面向客户业务场景的定制化开发与交付方法论</p><div class="t-meta" style="color:var(--accent-on)">项目签约后至验收与运营移交 / 市场 · 销售 · 产品 · 实施 · 研发 · 客户</div></div></main></div></section>
+<section class="slide hero dark accent" data-layout="SWISS-COVER-ASCII" data-animate="hero" data-title="千匠智元垂类智能体项目实施SOP" id="slide-1"><div class="canvas-card"><canvas class="ascii-bg" aria-hidden="true"></canvas><header class="chrome-min"><div class="l">QIANJIANG ZHIYUAN / 项目实施 SOP</div><div class="r">01 / 18</div></header><main style="flex:1;display:grid;grid-template-rows:auto 1fr auto;gap:3vh"><div class="t-meta" data-title-label="cover" data-anim="kicker" style="color:var(--accent-on)">QIANJIANG ZHIYUAN / VERTICAL AI AGENT PROJECT IMPLEMENTATION SOP</div><h1 aria-label="千匠智元垂类智能体项目实施SOP" data-anim="title" style="font-weight:200;font-size:min(6.4vw,11.4vh);line-height:1.12;letter-spacing:-.035em;align-self:center;max-width:80vw"><span data-cover-brand style="display:block;font-size:min(3vw,5.3vh);font-weight:300;line-height:1.3;letter-spacing:.07em;margin-bottom:3vh">千匠智元</span><span style="display:block">垂类智能体</span><span style="display:block">项目实施 <em style="font-weight:300">SOP</em></span></h1><div data-anim="bottom" style="border-top:1px solid rgba(255,255,255,.4);padding-top:2.4vh;display:grid;gap:2vh"><p class="lead" data-anim="lead" style="font-size:max(23px,1.75vw)">面向客户业务场景的定制化开发与交付方法论</p><div class="t-meta" style="color:var(--accent-on)">项目签约后至验收与运营移交 / 市场 · 销售 · 产品 · 实施 · 研发 · 客户</div></div></main></div></section>
 
 <section class="slide light" data-layout="S22" data-animate="image-hero" data-title="方法论定位与建设目标" id="slide-2"><div class="canvas-card" style="padding:0"><div data-anim="img" style="position:relative;flex:0 0 55%;overflow:hidden"><svg data-image-slot="s22-hero-21x9" data-tech-hero="true" viewBox="0 0 1600 500" role="img" aria-label="由线框、方形节点和连接线构成的业务任务协同示意" style="display:block;width:100%;height:100%;color:var(--accent)">
   <g fill="none" stroke="currentColor" stroke-width="1.2" opacity=".12">
@@ -2345,8 +2350,60 @@ if(motion){
     return true;
   }
 
+
+  // Cover-only field: a continuous full-bleed grid, travelling waves and rings.
+  // Keep a quieter field behind the title, without cutting a hole in the grid.
+  function drawCover(c, t){
+    const ctx = c.__ctx, w = c.__w, h = c.__h;
+    ctx.clearRect(0, 0, w, h);
+    if(w < 4 || h < 4) return;
+    const cols = Math.ceil(w / CELL), rows = Math.ceil(h / CELL);
+    const aspect = w / h, time = t*1.3;
+    const centerU = .80 + Math.sin(time*.13)*.035;
+    const centerV = .46 + Math.cos(time*.11)*.045;
+    for(let r=-1; r<=rows; r++){
+      for(let cc=-1; cc<=cols; cc++){
+        const bx = cc*CELL, by = r*CELL;
+        const u = bx/w, v = by/h;
+        const phase = bx*.006 + by*.012 + Math.sin(u*4.5+time*.3)*1.2-time*1.25;
+        const wave = (Math.sin(phase)+1)*.5;
+        const dx = (u-centerU)*aspect, dy = v-centerV;
+        const radius = Math.hypot(dx, dy), angle = Math.atan2(dy, dx);
+        // A slow, continuous phase avoids a visible reset when a ring expands.
+        // Broad coherent crests change both brightness and point area, making
+        // the curved wavefront readable at presentation scale.
+        const ringPhase = radius*18-time*1.20+Math.sin(angle*2)*.24;
+        const ring = Math.pow((Math.cos(ringPhase)+1)*.5, 5);
+        const sweep = Math.pow((Math.cos(u*6.2+v*2.7-time*.75)+1)*.5, 10);
+        const rightFocus = .60+.40/(1+Math.exp(-(u-.55)*8));
+        let alpha = .085 + wave*.05 + ring*.24*rightFocus
+          + sweep*.13 + ring*sweep*.075;
+        // An elliptical falloff, rather than a rectangular mask, keeps the
+        // title readable without outlining its layout or creating a cutout.
+        const titleQuiet = Math.exp(-Math.pow((u-.26)/.40, 2)-Math.pow((v-.49)/.28, 2));
+        alpha = .07 + (alpha-.07)*(1-.58*titleQuiet);
+        alpha = Math.max(.07, Math.min(.50, alpha));
+        // Stable cell types plus smoothly changing square size avoid flicker.
+        const hash = ((cc*37+r*61)%101+101)%101;
+        const radialWarp = Math.sin(radius*12.8-time*1.35)*9.5;
+        const nx = radius>.001 ? dx/radius : 0;
+        const ny = radius>.001 ? dy/radius : 0;
+        const x = bx + nx*radialWarp + Math.sin(by*.008+time*.83)*2.4;
+        const y = by + Math.sin(phase)*8.5 + ny*radialWarp*.35;
+        const size = (1.35+wave*.6+ring*3.5+sweep*1.8)*(1-.15*titleQuiet);
+        ctx.fillStyle = 'rgba(255,255,255,'+alpha.toFixed(3)+')';
+        if(hash<66){
+          ctx.fillRect(x-size*.5, y-size*.5, size, size);
+        }else{
+          ctx.fillText(hash<88 ? '+' : '◦', x-3.9, y-6.5);
+        }
+      }
+    }
+  }
+
   function draw(c, t){
     if(!c.__ctx) return;
+    if(c.closest('#slide-1')){ drawCover(c, t); return; }
     const ctx = c.__ctx, w = c.__w, h = c.__h;
     ctx.clearRect(0, 0, w, h);
     const cols = Math.ceil(w / CELL);
